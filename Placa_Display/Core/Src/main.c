@@ -32,6 +32,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define FonteQuad Font_16x26
+#define DeslocX (2)
+#define DeslocY (-3)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -97,7 +100,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  ST7735_WriteString(72,26,"o", Font_16x26, BLACK, WHITE);
+	  desenhaQuad(1, "o");
+	  HAL_Delay(1000);
+	  desenhaQuad(1, "x");
+	  HAL_Delay(1000);
+	/*  ST7735_WriteString(70 + DeslocX, 29 + DeslocY,"o", FonteQuad, BLACK, WHITE);
 	  ST7735_DrawLine(50, 29, 110, 29, BLACK);
 	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
 	  ST7735_DrawLine(70, 9, 70, 69, BLACK);
@@ -108,7 +115,7 @@ int main(void)
 	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
       ST7735_DrawLine(70, 9, 70, 69, BLACK);
 	  ST7735_DrawLine(90, 9, 90, 69, BLACK);
-	  HAL_Delay(1000);
+	  HAL_Delay(1000); */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -240,7 +247,19 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void desenhaQuad (short quad, const char* chr) {
+	short posX;
+	short posY;
+	if (quad <= 2) {
+		posY = 9;
+		posX = 50 + 20 * quad;
+	}
+	  ST7735_WriteString(posX + DeslocX, posY + DeslocY, chr , FonteQuad, BLACK, WHITE);
+	  ST7735_DrawLine(50, 29, 110, 29, BLACK);
+	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
+	  ST7735_DrawLine(70, 9, 70, 69, BLACK);
+	  ST7735_DrawLine(90, 9, 90, 69, BLACK);
+}
 /* USER CODE END 4 */
 
 /**
