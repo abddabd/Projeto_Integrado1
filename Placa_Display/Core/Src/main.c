@@ -35,6 +35,10 @@
 #define FonteQuad Font_16x26
 #define DeslocX (2)
 #define DeslocY (-3)
+#define botEsquerda !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9)
+#define botDireita  !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11)
+#define botCima     !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12)
+#define botBaixo    !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,7 +50,8 @@
 SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
-
+short cursorX = 1;
+short cursorY = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +64,6 @@ static void MX_SPI1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -93,29 +97,27 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   ST7735_Init();
+  short Matriz[3][3];
+
+  int delay = 0;
   ST7735_FillScreen(WHITE);
+  ST7735_DrawLine(50, 29, 110, 29, BLACK);
+  ST7735_DrawLine(50, 49, 110, 49, BLACK);
+  ST7735_DrawLine(70, 9, 70, 69, BLACK);
+  ST7735_DrawLine(90, 9, 90, 69, BLACK);
+  desenhaQuad(cursorX, cursorY, "x");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  desenhaQuad(1, "o");
-	  HAL_Delay(1000);
-	  desenhaQuad(1, "x");
-	  HAL_Delay(1000);
-	/*  ST7735_WriteString(70 + DeslocX, 29 + DeslocY,"o", FonteQuad, BLACK, WHITE);
-	  ST7735_DrawLine(50, 29, 110, 29, BLACK);
-	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
-	  ST7735_DrawLine(70, 9, 70, 69, BLACK);
-	  ST7735_DrawLine(90, 9, 90, 69, BLACK);
-	  HAL_Delay(1000);
-	  ST7735_WriteString(72,26," ", Font_16x26, BLACK, WHITE);
-	  ST7735_DrawLine(50, 29, 110, 29, BLACK);
-	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
-      ST7735_DrawLine(70, 9, 70, 69, BLACK);
-	  ST7735_DrawLine(90, 9, 90, 69, BLACK);
-	  HAL_Delay(1000); */
+	  if (botDireita) {
+	 desenhaQuad(cursorX, cursorY, " ");
+	 cursorParaDireita();
+	 desenhaQuad(cursorX, cursorY, "x");
+  	 // desenhaQuad(3, 3, "x");
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -247,18 +249,25 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void desenhaQuad (short quad, const char* chr) {
-	short posX;
-	short posY;
-	if (quad <= 2) {
-		posY = 9;
-		posX = 50 + 20 * quad;
-	}
+void desenhaQuad (short linha, short coluna, const char* chr) {
+	short posX = 50 + 20 * (linha - 1);
+	short posY = 9 + 20 * (coluna - 1 );
 	  ST7735_WriteString(posX + DeslocX, posY + DeslocY, chr , FonteQuad, BLACK, WHITE);
+	  consertaTabuleiro();
+}
+void consertaTabuleiro () {
 	  ST7735_DrawLine(50, 29, 110, 29, BLACK);
 	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
-	  ST7735_DrawLine(70, 9, 70, 69, BLACK);
-	  ST7735_DrawLine(90, 9, 90, 69, BLACK);
+}
+void cursorParaDireita () {
+	cursorX++;
+	if (cursorX == 4 && cursorY == 3) {
+		cursorX = 1;
+		cursorY = 1;
+	} else if (cursorX == 4) {
+		cursorX = 1;
+	    cursorY++;
+	}
 }
 /* USER CODE END 4 */
 
