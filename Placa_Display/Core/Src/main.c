@@ -52,6 +52,7 @@ SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN PV */
 short cursorX = 1;
 short cursorY = 1;
+const char* jogador = "x";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,25 +99,38 @@ int main(void)
   /* USER CODE BEGIN 2 */
   ST7735_Init();
   short Matriz[3][3];
-
+  // desenhaQuad(3, 3, "x");
   int delay = 0;
   ST7735_FillScreen(WHITE);
   ST7735_DrawLine(50, 29, 110, 29, BLACK);
   ST7735_DrawLine(50, 49, 110, 49, BLACK);
   ST7735_DrawLine(70, 9, 70, 69, BLACK);
   ST7735_DrawLine(90, 9, 90, 69, BLACK);
-  desenhaQuad(cursorX, cursorY, "x");
+  desenhaQuad(cursorX, cursorY, jogador);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if (botEsquerda) {
+	 desenhaQuad(cursorX, cursorY, " ");
+	 cursorParaEsquerda();
+	 desenhaQuad(cursorX, cursorY, jogador);
+	  }
 	  if (botDireita) {
 	 desenhaQuad(cursorX, cursorY, " ");
 	 cursorParaDireita();
-	 desenhaQuad(cursorX, cursorY, "x");
-  	 // desenhaQuad(3, 3, "x");
+	 desenhaQuad(cursorX, cursorY, jogador);
+	    	 // desenhaQuad(3, 3, "x");
+	  }
+	  if (botBaixo) {
+	    if (jogador == "x") {
+	    	jogador = "o";
+	    } else {
+	    	jogador = "x";
+	    }
+	  desenhaQuad(cursorX, cursorY, jogador);
 	  }
     /* USER CODE END WHILE */
 
@@ -267,6 +281,16 @@ void cursorParaDireita () {
 	} else if (cursorX == 4) {
 		cursorX = 1;
 	    cursorY++;
+	}
+}
+void cursorParaEsquerda () {
+	cursorX--;
+	if (cursorX == 0 && cursorY == 1) {
+		cursorX = 3;
+		cursorY = 3;
+	} else if (cursorX == 0) {
+		cursorX = 3;
+		cursorY--;
 	}
 }
 /* USER CODE END 4 */
