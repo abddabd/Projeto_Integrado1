@@ -53,7 +53,7 @@ SPI_HandleTypeDef hspi1;
 short cursorX = 1;
 short cursorY = 1;
 const char* jogador = "x";
-int delay = 1;
+short matriz[3][3];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,7 +99,6 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   ST7735_Init();
-  short Matriz[3][3];
   // desenhaQuad(3, 3, "x");
   ST7735_FillScreen(WHITE);
   ST7735_DrawLine(50, 29, 110, 29, BLACK);
@@ -113,8 +112,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      HAL_Delay(200);
-
+	  piscaCursor();
 	  if (botEsquerda) {
 	 cursorParaEsquerda();
 	  }
@@ -128,8 +126,9 @@ int main(void)
 	  HAL_Delay(200);
 	  }
 
-	  piscaCursor();
-
+	  if (botCima) {
+	  fimJogada();
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -302,6 +301,7 @@ void piscaCursor() {
 			HAL_Delay(50);
 			if (botCima || botDireita || botEsquerda || botBaixo)
 			{
+				HAL_Delay(66);
 				desenhaQuad (cursorX, cursorY, " ");
 				return;
 			}
@@ -312,9 +312,17 @@ void piscaCursor() {
 			HAL_Delay(50);
 			if (botCima || botDireita || botEsquerda || botBaixo)
 			{
+				HAL_Delay(66);
 				return;
 			}
 		}
+	}
+}
+void fimJogada() {
+	if (jogador == "x") {
+		matriz[cursorX][cursorY] = 1;
+	} else {
+		matriz[cursorX][cursorY] = -1;
 	}
 }
 /* USER CODE END 4 */
