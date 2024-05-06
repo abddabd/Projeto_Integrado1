@@ -52,7 +52,7 @@ SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN PV */
 short cursorX = 1;
 short cursorY = 1;
-const char* jogador = "x";
+char* jogador = "x";
 short matriz[3][3];
 /* USER CODE END PV */
 
@@ -61,7 +61,14 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-
+void desenhaQuad (short linha, short coluna, const char* chr);
+void piscaCursor();
+void cursorParaEsquerda();
+void cursorParaDireita ();
+void alternaJogador();
+void fimJogada();
+void consertaTabuleiro();
+void fimRodada(short result);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -99,13 +106,12 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   ST7735_Init();
-  // desenhaQuad(3, 3, "x");
   ST7735_FillScreen(WHITE);
   ST7735_DrawLine(50, 29, 110, 29, BLACK);
   ST7735_DrawLine(50, 49, 110, 49, BLACK);
   ST7735_DrawLine(70, 9, 70, 69, BLACK);
   ST7735_DrawLine(90, 9, 90, 69, BLACK);
-  //desenhaQuad(cursorX, cursorY, jogador);
+  ST7735_WriteString(0, 0, "x:" , Font_11x18, BLACK, WHITE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -128,6 +134,7 @@ int main(void)
 
 	  if (botCima) {
 	  fimJogada();
+	  HAL_Delay(300);
 	  }
     /* USER CODE END WHILE */
 
@@ -267,6 +274,8 @@ void consertaTabuleiro () {
 	  ST7735_DrawLine(50, 49, 110, 49, BLACK);
 }
 void cursorParaDireita () {
+	short i;
+	for (i = 1; i <=9; i++) {
 	cursorX++;
 	if (cursorX == 4 && cursorY == 3) {
 		cursorX = 1;
@@ -275,8 +284,15 @@ void cursorParaDireita () {
 		cursorX = 1;
 	    cursorY++;
 	}
+
+	if (matriz[cursorX - 1][cursorY - 1] == 0)
+		return;
+
+	}
+	fimRodada(0);
 }
 void cursorParaEsquerda () {
+	for (;;) {
 	cursorX--;
 	if (cursorX == 0 && cursorY == 1) {
 		cursorX = 3;
@@ -285,9 +301,14 @@ void cursorParaEsquerda () {
 		cursorX = 3;
 		cursorY--;
 	}
+
+	if (matriz[cursorX - 1][cursorY - 1] == 0)
+		break;
+
+	}
 }
 void alternaJogador() {
-	if (jogador == "x") {
+	if (*jogador == 'x') {
 	   	jogador = "o";
 	    } else {
 	   	jogador = "x";
@@ -319,11 +340,19 @@ void piscaCursor() {
 	}
 }
 void fimJogada() {
-	if (jogador == "x") {
-		matriz[cursorX][cursorY] = 1;
+	if (*jogador == 'x') {
+		matriz[cursorX - 1][cursorY - 1] = 1;
 	} else {
-		matriz[cursorX][cursorY] = -1;
+		matriz[cursorX - 1][cursorY - 1] = -1;
 	}
+	desenhaQuad (cursorX, cursorY, jogador);
+	alternaJogador();
+	cursorX = 0;
+	cursorY = 1;
+	cursorParaDireita();
+}
+void fimRodada(short result) {
+	ST7735_FillScreen(BLUE);
 }
 /* USER CODE END 4 */
 
