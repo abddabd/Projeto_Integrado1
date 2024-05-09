@@ -52,8 +52,8 @@ SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN PV */
 short cursorX = 1;
 short cursorY = 1;
-short pontosX = 0;
-short pontosO = 0;
+char* pontosX = 0;
+char* pontosO = 0;
 char* jogador = "x";
 short matriz[3][3];
 /* USER CODE END PV */
@@ -114,8 +114,12 @@ int main(void)
   ST7735_DrawLine(50, 49, 110, 49, BLACK);
   ST7735_DrawLine(70, 9, 70, 69, BLACK);
   ST7735_DrawLine(90, 9, 90, 69, BLACK);
-  ST7735_WriteString(126, 61, "o=" , Font_11x18, BLACK, WHITE);
-  ST7735_WriteString(148, 61, pontosO , Font_11x18, BLACK, WHITE);
+
+  char buffer [10];
+  pontosO++;
+  sprintf(buffer, "o:%d", pontosO);
+  ST7735_WriteString(126, 61, buffer , Font_7x10, BLACK, WHITE);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
