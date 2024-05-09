@@ -52,6 +52,8 @@ SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN PV */
 short cursorX = 1;
 short cursorY = 1;
+short pontosX = 0;
+short pontosO = 0;
 char* jogador = "x";
 short matriz[3][3];
 /* USER CODE END PV */
@@ -69,6 +71,7 @@ void alternaJogador();
 void fimJogada();
 void consertaTabuleiro();
 void fimRodada(short result);
+void checarVitoria();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -111,7 +114,8 @@ int main(void)
   ST7735_DrawLine(50, 49, 110, 49, BLACK);
   ST7735_DrawLine(70, 9, 70, 69, BLACK);
   ST7735_DrawLine(90, 9, 90, 69, BLACK);
-  ST7735_WriteString(0, 0, "x:" , Font_11x18, BLACK, WHITE);
+  ST7735_WriteString(126, 61, "o=" , Font_11x18, BLACK, WHITE);
+  ST7735_WriteString(148, 61, pontosO , Font_11x18, BLACK, WHITE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -346,13 +350,69 @@ void fimJogada() {
 		matriz[cursorX - 1][cursorY - 1] = -1;
 	}
 	desenhaQuad (cursorX, cursorY, jogador);
+	checarVitoria();
 	alternaJogador();
 	cursorX = 0;
 	cursorY = 1;
 	cursorParaDireita();
 }
+void checarVitoria() {
+	short i = 0;
+	for (i=0; i<=2; i++) {
+		if (matriz[i][0] + matriz[i][1] + matriz[i][2] == 3) {
+			fimRodada(1);
+		} else if (matriz[i][0] + matriz[i][1] + matriz[i][2] == -3) {
+			fimRodada(2);
+		}
+	}
+	for (i=0; i<=2; i++) {
+		if (matriz[0][i] + matriz[1][i] + matriz[2][i] == 3) {
+			fimRodada(1);
+		} else if (matriz[0][i] + matriz[1][i] + matriz[2][i] == -3) {
+			fimRodada(2);
+		}
+	}
+
+	if (matriz[0][0] + matriz[1][1] + matriz[2][2] == 3) {
+		fimRodada(1);
+	} else if (matriz[0][0] + matriz[1][1] + matriz[2][2] == -3) {
+		fimRodada(2);
+	}
+
+	if (matriz[0][2] + matriz[1][1] + matriz[2][0] == 3) {
+		fimRodada(1);
+	} else if (matriz[0][2] + matriz[1][1] + matriz[2][0] == -3) {
+		fimRodada(2);
+	}
+	/*char vetor[] = {'J','o','g'};
+	 ST7735_WriteChar(posX + DeslocX, posY + DeslocY, vetor[0] , FonteQuad, BLACK, WHITE);
+	 ST7735_WriteString(posX + DeslocX, posY + DeslocY, vetor[1] , FonteQuad, BLACK, WHITE);
+	 ST7735_WriteString(posX + DeslocX, posY + DeslocY, vetor[2] , FonteQuad, BLACK, WHITE);*/
+}
 void fimRodada(short result) {
-	ST7735_FillScreen(BLUE);
+	switch (result) {
+	case 0:
+		ST7735_FillScreen(BLACK);
+		break;
+	case 1:
+		pontosX++;
+		ST7735_FillScreen(RED);
+		break;
+	case 2:
+		pontosO++;
+		ST7735_FillScreen(BLUE);
+		break;
+	}
+	while (1) {}
+}
+void zerarMatriz() {
+	short i = 0;
+	short j = 0;
+	for (i=0; i<=2; i++) {
+		for (j=0; j<=2; j++) {
+			matriz[i][j] = 0;
+		}
+	}
 }
 /* USER CODE END 4 */
 
