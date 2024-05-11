@@ -52,10 +52,12 @@ SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN PV */
 short cursorX = 1;
 short cursorY = 1;
-char* pontosX = 0;
-char* pontosO = 0;
+short pontosX = 0;
+short pontosO = 0;
 char* jogador = "x";
 short matriz[3][3];
+char buffer [10];
+char buffer2 [10];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,6 +74,11 @@ void fimJogada();
 void consertaTabuleiro();
 void fimRodada(short result);
 void checarVitoria();
+void novaRodada();
+void zerarMatriz();
+void atualizarPontos();
+void fimDeJogo();
+int sprintf(char *str, const char *format, ...);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -110,16 +117,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   ST7735_Init();
   ST7735_FillScreen(WHITE);
-  ST7735_DrawLine(50, 29, 110, 29, BLACK);
-  ST7735_DrawLine(50, 49, 110, 49, BLACK);
-  ST7735_DrawLine(70, 9, 70, 69, BLACK);
-  ST7735_DrawLine(90, 9, 90, 69, BLACK);
-
-  char buffer [10];
-  pontosO++;
-  sprintf(buffer, "o:%d", pontosO);
-  ST7735_WriteString(126, 61, buffer , Font_7x10, BLACK, WHITE);
-
+  novaRodada();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,7 +134,7 @@ int main(void)
 	  }
 
 	  if (botBaixo) {
-	  alternaJogador();
+	  fimDeJogo();
 	  HAL_Delay(200);
 	  }
 
@@ -317,8 +315,10 @@ void cursorParaEsquerda () {
 }
 void alternaJogador() {
 	if (*jogador == 'x') {
+		ST7735_WriteString(0, 0, "o:" , Font_11x18, BLACK, WHITE);
 	   	jogador = "o";
 	    } else {
+	    ST7735_WriteString(0, 0, "x:" , Font_11x18, BLACK, WHITE);
 	   	jogador = "x";
 	    }
 }
@@ -354,60 +354,73 @@ void fimJogada() {
 		matriz[cursorX - 1][cursorY - 1] = -1;
 	}
 	desenhaQuad (cursorX, cursorY, jogador);
-	checarVitoria();
 	alternaJogador();
 	cursorX = 0;
 	cursorY = 1;
 	cursorParaDireita();
+	checarVitoria();
 }
 void checarVitoria() {
 	short i = 0;
 	for (i=0; i<=2; i++) {
 		if (matriz[i][0] + matriz[i][1] + matriz[i][2] == 3) {
+			ST7735_DrawLine(59 + 20 * i + DeslocX, 9 + DeslocY, 59 + 20 * i, 74, BLACK);
 			fimRodada(1);
 		} else if (matriz[i][0] + matriz[i][1] + matriz[i][2] == -3) {
+			ST7735_DrawLine(59 + 20 * i + DeslocX, 9 + DeslocY, 59 + 20 * i, 74, BLACK);
 			fimRodada(2);
 		}
 	}
 	for (i=0; i<=2; i++) {
 		if (matriz[0][i] + matriz[1][i] + matriz[2][i] == 3) {
+			ST7735_DrawLine(45, 21 + 20 * i + DeslocY, 115, 21 + 20 * i + DeslocY, BLACK);
 			fimRodada(1);
 		} else if (matriz[0][i] + matriz[1][i] + matriz[2][i] == -3) {
+			ST7735_DrawLine(45, 21 + 20 * i + DeslocY, 115, 21 + 20 * i + DeslocY, BLACK);
 			fimRodada(2);
 		}
 	}
 
 	if (matriz[0][0] + matriz[1][1] + matriz[2][2] == 3) {
+		ST7735_DrawLine(48, 8, 111, 69, BLACK);
 		fimRodada(1);
 	} else if (matriz[0][0] + matriz[1][1] + matriz[2][2] == -3) {
+		ST7735_DrawLine(48, 8, 111, 69, BLACK);
 		fimRodada(2);
 	}
 
 	if (matriz[0][2] + matriz[1][1] + matriz[2][0] == 3) {
+		ST7735_DrawLine(48, 69, 111, 8, BLACK);
 		fimRodada(1);
 	} else if (matriz[0][2] + matriz[1][1] + matriz[2][0] == -3) {
+		ST7735_DrawLine(48, 69, 111, 8, BLACK);
 		fimRodada(2);
 	}
-	/*char vetor[] = {'J','o','g'};
-	 ST7735_WriteChar(posX + DeslocX, posY + DeslocY, vetor[0] , FonteQuad, BLACK, WHITE);
-	 ST7735_WriteString(posX + DeslocX, posY + DeslocY, vetor[1] , FonteQuad, BLACK, WHITE);
-	 ST7735_WriteString(posX + DeslocX, posY + DeslocY, vetor[2] , FonteQuad, BLACK, WHITE);*/
 }
 void fimRodada(short result) {
 	switch (result) {
 	case 0:
-		ST7735_FillScreen(BLACK);
 		break;
 	case 1:
 		pontosX++;
-		ST7735_FillScreen(RED);
+		jogador = "o";
+		atualizarPontos();
 		break;
 	case 2:
 		pontosO++;
-		ST7735_FillScreen(BLUE);
+		jogador = "x";
+		atualizarPontos();
 		break;
 	}
-	while (1) {}
+	HAL_Delay(400);
+	while (!botCima && !botBaixo && !botEsquerda && !botDireita) {}
+	if (pontosX == 2 || pontosO == 2)
+		fimDeJogo();
+	zerarMatriz();
+	novaRodada();
+	cursorX = 0;
+	cursorY = 1;
+	cursorParaDireita();
 }
 void zerarMatriz() {
 	short i = 0;
@@ -417,6 +430,41 @@ void zerarMatriz() {
 			matriz[i][j] = 0;
 		}
 	}
+}
+void atualizarPontos() {
+	if (pontosX > 0)
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 1);
+	if (pontosX > 1)
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);
+	if (pontosO > 0)
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 1);
+	if (pontosO > 1)
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 1);
+	sprintf(buffer, "O:%d", pontosO);
+	sprintf(buffer2, "X:%d", pontosX);
+	ST7735_WriteString(159 - 7 * 3, 79 - 10 * 1, buffer , Font_7x10, BLACK, WHITE);
+	ST7735_WriteString(159 - 7 * 3, 79 - 10 * 2, buffer2 , Font_7x10, BLACK, WHITE);
+}
+void novaRodada() {
+	ST7735_FillScreen(WHITE);
+	ST7735_DrawLine(50, 29, 110, 29, BLACK);
+	ST7735_DrawLine(50, 49, 110, 49, BLACK);
+	ST7735_DrawLine(70, 9, 70, 69, BLACK);
+	ST7735_DrawLine(90, 9, 90, 69, BLACK);
+
+	atualizarPontos();
+	ST7735_WriteString(0, 0, jogador , Font_11x18, BLACK, WHITE);
+	ST7735_WriteString(11, 0, ":" , Font_11x18, BLACK, WHITE);
+}
+void fimDeJogo() {
+	ST7735_FillScreen(WHITE);
+	ST7735_WriteString(34, 24, "Vencedor:" , Font_11x18, BLACK, WHITE);
+	if (pontosX == 2) {
+	    ST7735_WriteString(73, 43, "x" , Font_16x26, BLACK, WHITE);
+	} else {
+		ST7735_WriteString(73, 43, "o" , Font_16x26, BLACK, WHITE);
+	}
+	while (1) {}
 }
 /* USER CODE END 4 */
 
