@@ -134,8 +134,8 @@ int main(void)
 	  }
 
 	  if (botBaixo) {
-	  fimDeJogo();
-	  HAL_Delay(200);
+	  fimJogada();
+	  HAL_Delay(300);
 	  }
 
 	  if (botCima) {
