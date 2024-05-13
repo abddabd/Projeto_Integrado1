@@ -464,7 +464,15 @@ void fimDeJogo() {
 	} else {
 		ST7735_WriteString(73, 43, "o" , Font_16x26, BLACK, WHITE);
 	}
-	while (1) {}
+	while (!botCima && !botBaixo && !botEsquerda && !botDireita) {}
+	pontosX = 0;
+	pontosO = 0;
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 0);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 0);
+	jogador = "x";
+	fimRodada(0);
 }
 /* USER CODE END 4 */
 
